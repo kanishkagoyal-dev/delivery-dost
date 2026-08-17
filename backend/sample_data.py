@@ -1,4 +1,4 @@
-from shared_models import Order, Vehicle, PriorityLevel
+from backend.shared_models import Order, Vehicle, PriorityLevel
 from datetime import datetime, timedelta
 
 # This function creates 20 sample delivery orders

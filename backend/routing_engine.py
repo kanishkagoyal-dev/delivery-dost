@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List
 import math
 
-from shared_models import Order, Route, Vehicle
+from backend.shared_models import Order, Route, Vehicle
 
 
 class RoutingEngine:

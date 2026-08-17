@@ -1,13 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from shared_models import Order, Vehicle, Route
-from database import db
-from sample_data import create_sample_orders, create_sample_vehicles
-from routing_engine import RoutingEngine
-from cost_optimizer import CostOptimizer
-from traffic_simulator import TrafficSimulator
-from reoptimizer import Reoptimizer
+
+from backend.shared_models import Order, Vehicle, Route
+from backend.database import db
+from backend.sample_data import create_sample_orders, create_sample_vehicles
+from backend.routing_engine import RoutingEngine
+from backend.cost_optimizer import CostOptimizer
+from backend.traffic_simulator import TrafficSimulator
+from backend.reoptimizer import Reoptimizer
 
 # Create the FastAPI application
 app = FastAPI(

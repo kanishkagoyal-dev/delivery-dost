@@ -1,5 +1,5 @@
 from typing import List, Dict
-from shared_models import Order, Vehicle, Route
+from backend.shared_models import Order, Vehicle, Route
 
 # This is a simple in-memory database (stores data in RAM)
 # For prototype, we don't need a real database
@@ -7,7 +7,7 @@ class InMemoryDB:
     def __init__(self):
         # Initialize empty dictionaries to store data
         self.orders: Dict[str, Order] = {}      # Orders stored by ID
-        self.vehicles: Dict[str, Vehicle] = {}  # Vehicles stored by ID
+        self.vehicles: Dict[sstr, Vehicle] = {}  # Vehicles stored by ID
         self.routes: List[Route] = []           # List of routes
     
     # Add a new order to database

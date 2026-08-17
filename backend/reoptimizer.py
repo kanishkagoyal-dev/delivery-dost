@@ -1,5 +1,5 @@
 from typing import List
-from shared_models import Order, Vehicle, Route
+from backend.shared_models import Order, Vehicle, Route
 
 
 class Reoptimizer:

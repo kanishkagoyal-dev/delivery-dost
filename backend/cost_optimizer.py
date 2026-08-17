@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from shared_models import Order, Vehicle, Route, PriorityLevel
+from backend.shared_models import Order, Vehicle, Route, PriorityLevel
 
 
 class CostOptimizer:

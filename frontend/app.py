@@ -15,8 +15,21 @@ API_V1 = API_BASE + "/api/v1"
 # PAGE SETUP
 # =========================
 st.set_page_config(page_title="AI Last-Mile Logistics", layout="wide")
-st.title("🚚 AI Last-Mile Logistics Dashboard")
-
+st.title("✦ Delivery Dost")
+st.markdown(
+    """
+    <div style="
+        font-size: 20px;
+        font-weight: 600;
+        color: #374151;
+        margin-top: -12px;
+        margin-bottom: 20px;
+    ">
+        The brain behind every better delivery.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 # =========================
 # HELPER: FETCH DATA FROM API
 # =========================
@@ -215,9 +228,22 @@ priority_icon_map = {
 }
 
 for d in deliveries:
-    lat = d.get("lat")
-    lng = d.get("lng")
-    priority = (d.get("priority") or "low").lower()
+    lat = d.get("lat", d.get("location_lat"))
+    lng = d.get("lng", d.get("location_lon"))
+
+    raw_priority = d.get("priority", "low")
+
+    if isinstance(raw_priority, int):
+        priority = {
+            1: "low",
+            2: "low",
+            3: "medium",
+            4: "high",
+            5: "high",
+        }.get(raw_priority, "low")
+    else:
+        priority = str(raw_priority).lower()
+
     status = d.get("status", "unknown")
     d_id = d.get("id", "?")
     eta = d.get("eta", "-")
@@ -226,16 +252,25 @@ for d in deliveries:
         continue
 
     icon_name = priority_icon_map.get(priority, "ok-sign")
-    color_map = {"high": "red", "medium": "orange", "low": "green"}
+    color_map = {
+        "high": "red",
+        "medium": "orange",
+        "low": "green",
+    }
     marker_color = color_map.get(priority, "blue")
 
     tooltip_text = f"{d_id} | {priority} | {status} | ETA: {eta}"
 
     folium.Marker(
         location=[lat, lng],
-        icon=folium.Icon(color=marker_color, icon=icon_name, prefix="fa"),
+        icon=folium.Icon(
+            color=marker_color,
+            icon=icon_name,
+            prefix="fa"
+        ),
         tooltip=tooltip_text,
     ).add_to(m)
+   
 
 # =========================
 # SHOW MAP

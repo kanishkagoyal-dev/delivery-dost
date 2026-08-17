@@ -8,7 +8,7 @@ import time
 # CONFIG: API base URL
 # =========================
 # Change this later if your API runs on a different port/host.
-API_BASE = "http://localhost:8000"
+API_BASE = "https://delivery-dost.onrender.com"
 API_V1 = API_BASE + "/api/v1"
 
 # =========================

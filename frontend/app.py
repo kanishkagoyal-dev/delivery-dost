@@ -64,22 +64,30 @@ if st.sidebar.button("➕ Add Order"):
         st.sidebar.warning("Could not reach API to add order.")
 
 if st.sidebar.button("🚦 Simulate Traffic Jam"):
-    # Tell backend to simulate traffic (adjust endpoint)
     try:
-        requests.post(f"{API_BASE}/simulate/traffic_jam", timeout=2)
-        st.sidebar.success("Traffic jam simulated.")
-    except Exception:
-        st.sidebar.warning("Could not reach API to simulate traffic.")
+        response = requests.post(
+            f"{API_V1}/demo/traffic-jam",
+            timeout=30
+        )
+        response.raise_for_status()
+        st.sidebar.success("Traffic jam simulated and routes re-optimized.")
+        st.rerun()
+    except requests.RequestException as e:
+        st.sidebar.error(f"Traffic simulation failed: {e}")
 
 if st.sidebar.button("🔄 Re-optimize Now"):
-    # Trigger re-optimization (adjust endpoint)
     try:
-        requests.post(f"{API_BASE}/api/v1/optimize", timeout=2)
-        st.sidebar.success("Re-optimization triggered.")
-    except Exception:
-        st.sidebar.warning("Could not reach API to re-optimize.")
+        response = requests.post(
+            f"{API_V1}/reoptimize",
+            timeout=30
+        )
+        response.raise_for_status()
+        st.sidebar.success("Routes re-optimized successfully.")
+        st.rerun()
+    except requests.RequestException as e:
+        st.sidebar.error(f"Re-optimization failed: {e}")
 st.sidebar.markdown("---")
-st.sidebar.info("Auto-refresh: every 5 seconds")
+st.sidebar.info("Use the buttons to refresh route data.")
 
 # =========================
 # FETCH DATA
@@ -283,5 +291,5 @@ folium_static(m)
 # AUTO-REFRESH EVERY 5 SEC
 # =========================
 
-#time.sleep(5)
-#st.rerun()
+# time.sleep(5)
+# st.rerun()

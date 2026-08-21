@@ -267,7 +267,7 @@ def get_analytics():
     """
     print("📊 Analytics requested...")
 
-    orders = db.get_all_orders()
+    orders = db.get_pending_orders()
     vehicles = db.get_all_vehicles()
 
     # Use routing engine

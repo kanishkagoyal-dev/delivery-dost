@@ -272,6 +272,7 @@ def get_analytics():
 
     # Use routing engine
     routes = routing_engine.solve_routes(orders, vehicles)
+    db.update_routes(routes)
 
     # Use cost optimizer
     analytics = cost_optimizer.calculate_total_cost(

@@ -36,7 +36,7 @@ st.markdown(
 
 def fetch_json(endpoint, default=None):
     try:
-        resp = requests.get(f"{API_BASE}{endpoint}", timeout=2)
+        resp = requests.get(f"{API_BASE}{endpoint}", timeout=30)
         if resp.status_code == 200:
             return resp.json()
     except Exception:
@@ -53,7 +53,7 @@ st.sidebar.header("Controls")
 if st.sidebar.button("➕ Add Order"):
     # Call API to add a dummy order (adjust endpoint as per your backend)
     try:
-        requests.post(f"{API_BASE}/orders", json={
+        requests.post(f"{API_V1}/orders", json={
             "customer_lat": 28.62,
             "customer_lng": 77.22,
             "priority": "high",
@@ -137,13 +137,14 @@ roads=fetch_json("/api/v1/traffic",roads_default)
 # COMPUTE KPIS
 # =========================
 
-total_distance = sum(r.get("distance_km", 0) for r in routes)
-total_cost = sum(r.get("cost", 0) for r in routes)
-vehicles_used = len(routes)
+analytics = fetch_json("/api/v1/analytics", {})
 
-# On-time %: simple mock logic based on status
-delivered_count = sum(1 for d in deliveries if d.get("status") == "delivered")
-on_time_percent = round((delivered_count / max(len(deliveries), 1)) * 100)
+kpis = analytics.get("kpis", {})
+
+total_distance = analytics.get("total_distance_km", 0)
+total_cost = analytics.get("total_cost", 0)
+on_time_percent = kpis.get("on_time_delivery_percent", 0)
+vehicles_used = kpis.get("vehicles_used", 0)
 
 # =========================
 # DISPLAY KPI CARDS
@@ -282,5 +283,5 @@ folium_static(m)
 # AUTO-REFRESH EVERY 5 SEC
 # =========================
 
-time.sleep(5)
-st.rerun()
+#time.sleep(5)
+#st.rerun()

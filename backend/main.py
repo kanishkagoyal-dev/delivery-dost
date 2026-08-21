@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+from pydantic import BaseModel
 
 from backend.shared_models import Order, Vehicle, Route
 from backend.database import db
@@ -16,6 +17,9 @@ app = FastAPI(
     description="Real-time route optimization with traffic, capacity, and priority constraints",
     version="1.0.0"
 )
+class StatusUpdate(BaseModel):
+    status: str
+    
 routing_engine = RoutingEngine()
 cost_optimizer = CostOptimizer()
 traffic_simulator = TrafficSimulator()
@@ -90,6 +94,42 @@ def create_order(order: Order):
         "message": "Order created successfully",
         "order_id": order.id,
         "customer_name": order.customer_name
+    }
+
+@app.patch("/api/v1/orders/{order_id}/status")
+def update_order_status(order_id: str, update: StatusUpdate):
+    """
+    Update an order status: pending, assigned, or delivered.
+    """
+    allowed_statuses = {"pending", "assigned", "delivered"}
+
+    if update.status not in allowed_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail="Status must be pending, assigned, or delivered"
+        )
+
+    if order_id not in db.orders:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Order {order_id} not found"
+        )
+
+    order = db.orders[order_id]
+
+    # Pydantic v2-safe update
+    updated_order = order.model_copy(
+        update={"status": update.status}
+    )
+
+    db.orders[order_id] = updated_order
+
+    print(f"✅ Order {order_id} status changed to: {update.status}")
+
+    return {
+        "message": "Order status updated successfully",
+        "order_id": order_id,
+        "status": update.status
     }
 
 # ============ VEHICLE ENDPOINTS ============

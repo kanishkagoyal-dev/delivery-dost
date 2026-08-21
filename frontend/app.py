@@ -14,6 +14,8 @@ API_V1 = API_BASE + "/api/v1"
 # =========================
 # PAGE SETUP
 # =========================
+if "action_message" not in st.session_state:
+    st.session_state.action_message = ""
 st.set_page_config(page_title="AI Last-Mile Logistics", layout="wide")
 st.title("✦ Delivery Dost")
 st.markdown(
@@ -49,6 +51,9 @@ def fetch_json(endpoint, default=None):
 # =========================
 
 st.sidebar.header("Controls")
+if st.session_state.action_message:
+    st.sidebar.success(st.session_state.action_message)
+    st.session_state.action_message = ""
 
 if st.sidebar.button("➕ Add Order"):
     # Call API to add a dummy order (adjust endpoint as per your backend)
@@ -70,8 +75,12 @@ if st.sidebar.button("🚦 Simulate Traffic Jam"):
             timeout=30
         )
         response.raise_for_status()
-        st.sidebar.success("Traffic jam simulated and routes re-optimized.")
+
+        st.session_state.action_message = (
+            "Traffic jam simulated and routes re-optimized."
+        )
         st.rerun()
+
     except requests.RequestException as e:
         st.sidebar.error(f"Traffic simulation failed: {e}")
 
@@ -82,12 +91,14 @@ if st.sidebar.button("🔄 Re-optimize Now"):
             timeout=30
         )
         response.raise_for_status()
-        st.sidebar.success("Routes re-optimized successfully.")
+
+        st.session_state.action_message = (
+            "Routes re-optimized successfully."
+        )
         st.rerun()
+
     except requests.RequestException as e:
         st.sidebar.error(f"Re-optimization failed: {e}")
-st.sidebar.markdown("---")
-st.sidebar.info("Use the buttons to refresh route data.")
 
 # =========================
 # FETCH DATA
@@ -208,26 +219,46 @@ for road in roads:
     ).add_to(m)
 
 # ---- Draw vehicle routes ----
-for route in routes:
-    path = route.get("path", [])
-    if len(path) < 2:
+route_colors = ["blue", "red", "purple", "orange", "darkgreen"]
+
+for index, route in enumerate(routes):
+    vehicle_id = route.get("vehicle_id", "V?")
+    order_ids = route.get("order_ids", route.get("orders", []))
+
+    route_path = []
+
+    for order_id in order_ids:
+        matching_order = next(
+            (order for order in deliveries if order.get("id") == order_id),
+            None
+        )
+
+        if matching_order:
+            lat = matching_order.get("location_lat", matching_order.get("lat"))
+            lng = matching_order.get("location_lon", matching_order.get("lng"))
+
+            if lat is not None and lng is not None:
+                route_path.append([lat, lng])
+
+    if len(route_path) < 2:
         continue
-    color = route.get("color", "blue")
-    vid = route.get("vehicle_id", "V?")
+
+    color = route_colors[index % len(route_colors)]
+
     folium.PolyLine(
-        locations=path,
+        locations=route_path,
         color=color,
         weight=5,
         opacity=0.9,
-        tooltip=f"{vid} route",
+        tooltip=f"{vehicle_id} optimized route",
     ).add_to(m)
 
-    # Add a marker for the vehicle start
     folium.Marker(
-        location=path[0],
+        location=route_path[0],
         icon=folium.Icon(color=color, icon="truck", prefix="fa"),
-        tooltip=f"Vehicle {vid}",
+        tooltip=f"{vehicle_id} start",
     ).add_to(m)
+
 
 # ---- Mark delivery locations ----
 priority_icon_map = {
